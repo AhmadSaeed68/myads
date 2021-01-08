@@ -1,9 +1,33 @@
-"# myads library " 
+# Myads Library
+
+Helps in loading Facebook Audience Network and Admob Ad ids from APi
+
+## Installation
+
+Add it in your root build.gradle at the end of repositories:
+
+	allprojects {
+		repositories {
+			...
+			maven { url 'https://jitpack.io' }
+		}
+	}
+Step 2. Add the dependency
+
+	dependencies {
+	        implementation 'com.github.AhmadSaeed68:myads:Tag'
+	}
+
+
+
+## Usage
+
+```java
 
 
 public class MainActivity extends AppCompatActivity {
 
-    //ads
+    // Add String Arrays
     public static  String[] admobBannerIds;
     public static  String[] admobInterstitialIds;
     public static  String[] fanBannerIds;
@@ -16,9 +40,11 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
+        // Initilizate MyAds with Context and Package Name
         MyAds.Initialize(this, getPackageName());
+        //Optional: set API endpoint
         MyAds.setUrl("https://eservicespk.ahmadsaeed.net/app/api/adslib?package");
+        // Getting Ids and Storing them in global String arrays
         MyAds.getAdIds(
                   response -> {
                       admobBannerIds = MyAds.ParseAdmobBannerIds(response);
@@ -30,3 +56,9 @@ public class MainActivity extends AppCompatActivity {
         );
 
 
+
+```
+
+
+## License
+[Ahmad Saeed](https://ahmadsaeed.net)
