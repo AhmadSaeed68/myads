@@ -42,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
     public static  String[] admobInterstitialIds;
     public static  String[] fanBannerIds;
     public static  String[] fanInterstitialIds;
+    public static  String adNetwork;
 
 
 
@@ -52,20 +53,23 @@ public class MainActivity extends AppCompatActivity {
 
 
         MyAds.Initialize(this, getPackageName());
-        MyAds.setUrl("https://eservicespk.ahmadsaeed.net/app/api/adslib?package");
+        MyAds.setUrl("https://eservicespk.ahmadsaeed.net/app/api/adslib?package=com.playapps.ads");
         MyAds.getAdIds(
                   response -> {
+
                       admobBannerIds = MyAds.ParseAdmobBannerIds(response);
                       admobInterstitialIds = MyAds.ParseAdmobInterstitialIds(response);
                       fanBannerIds = MyAds.parseFanBannerIds(response);
                       fanInterstitialIds = MyAds.parseFanInterstitialIds(response);
-                  },
-                  MyAds::identifyError
+                      adNetwork = MyAds.getAdNetwork(response);
+
+                      Log.i("aaaaaaaaaa", "netowrk: "+adNetwork);
+                  }
+
         );
 
 
 
 
-           //Log.i("from main act", Arrays.toString(ids));
     }
 }

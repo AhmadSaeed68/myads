@@ -48,7 +48,7 @@ public class MyAds {
     @SuppressLint("StaticFieldLeak")
     private static Context context;
     private static String packageName;
-    private static  String url = "https://eservicespk.ahmadsaeed.net/app/api/adslib?package=";
+    private static  String url = "https://eservicespk.ahmadsaeed.net/app/api/adslib?package=com.playapps.ads";
 
 
     public static void Initialize(Context c, String p) {
@@ -60,11 +60,58 @@ public class MyAds {
         url = u;
     }
 
-    public static void getAdIds(Response.Listener<JSONArray> listener,
-                                Response.ErrorListener errorL) {
+    public static void getAdIds(Response.Listener<JSONArray> listener) {
 
         RequestQueue queue = Volley.newRequestQueue(context);
-        JsonArrayRequest req = new JsonArrayRequest(Request.Method.GET, url+packageName, null, listener, errorL);
+        JsonArrayRequest req = new JsonArrayRequest(Request.Method.GET, url, null, listener, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                if (error instanceof NoConnectionError) {
+                    ConnectivityManager cm = (ConnectivityManager) context
+                            .getSystemService(Context.CONNECTIVITY_SERVICE);
+                    NetworkInfo activeNetwork = null;
+                    if (cm != null) {
+                        activeNetwork = cm.getActiveNetworkInfo();
+                    }
+                    if (activeNetwork != null && activeNetwork.isConnectedOrConnecting()) {
+                        Toast.makeText(context, "Server is not connected to internet.",
+                                Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(context, "Your device is not connected to internet.",
+                                Toast.LENGTH_SHORT).show();
+                    }
+                } else if (error instanceof NetworkError || error.getCause() instanceof ConnectException
+                        || (error.getCause().getMessage() != null
+                        && error.getCause().getMessage().contains("connection"))) {
+                    Toast.makeText(context, "Your device is not connected to internet.",
+                            Toast.LENGTH_SHORT).show();
+                } else if (error.getCause() instanceof MalformedURLException) {
+                    Toast.makeText(context, "Bad Request.", Toast.LENGTH_SHORT).show();
+                } else if (error instanceof ParseError || error.getCause() instanceof IllegalStateException
+                        || error.getCause() instanceof JSONException
+                        || error.getCause() instanceof XmlPullParserException) {
+                    Toast.makeText(context, "Parse Error (because of invalid json or xml).",
+                            Toast.LENGTH_SHORT).show();
+                } else if (error.getCause() instanceof OutOfMemoryError) {
+                    Toast.makeText(context, "Out Of Memory Error.", Toast.LENGTH_SHORT).show();
+                } else if (error instanceof AuthFailureError) {
+                    Toast.makeText(context, "server couldn't find the authenticated request.",
+                            Toast.LENGTH_SHORT).show();
+                } else if (error instanceof ServerError || error.getCause() instanceof ServerError) {
+                    Toast.makeText(context, "Server is not responding.", Toast.LENGTH_SHORT).show();
+                } else if (error instanceof TimeoutError || error.getCause() instanceof SocketTimeoutException
+                        || error.getCause() instanceof ConnectTimeoutException
+                        || error.getCause() instanceof SocketException
+                        || (error.getCause().getMessage() != null
+                        && error.getCause().getMessage().contains("Connection timed out"))) {
+                    Toast.makeText(context, "Connection timeout error",
+                            Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(context, "An unknown error occurred.",
+                            Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
         queue.add(req);
     }
 
@@ -81,6 +128,18 @@ public class MyAds {
             }
         }
         return ids;
+    }
+
+    public static String getAdNetwork(JSONArray response){
+        try{
+            return response.getJSONObject(0).getString("network");
+        }
+        catch (JSONException e) {
+        Log.i("Myads: Parse Error: ", "Can not Parse Response");
+        e.printStackTrace();
+        return "null";
+    }
+
     }
 
     public static String[] ParseAdmobInterstitialIds(JSONArray response) {
@@ -127,51 +186,6 @@ public class MyAds {
         return ids;
     }
 
-    public static void identifyError(VolleyError error) {
-        if (error instanceof NoConnectionError) {
-            ConnectivityManager cm = (ConnectivityManager) context
-                    .getSystemService(Context.CONNECTIVITY_SERVICE);
-            NetworkInfo activeNetwork = null;
-            if (cm != null) {
-                activeNetwork = cm.getActiveNetworkInfo();
-            }
-            if (activeNetwork != null && activeNetwork.isConnectedOrConnecting()) {
-                Toast.makeText(context, "Server is not connected to internet.",
-                        Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(context, "Your device is not connected to internet.",
-                        Toast.LENGTH_SHORT).show();
-            }
-        } else if (error instanceof NetworkError || error.getCause() instanceof ConnectException
-                || (error.getCause().getMessage() != null
-                && error.getCause().getMessage().contains("connection"))) {
-            Toast.makeText(context, "Your device is not connected to internet.",
-                    Toast.LENGTH_SHORT).show();
-        } else if (error.getCause() instanceof MalformedURLException) {
-            Toast.makeText(context, "Bad Request.", Toast.LENGTH_SHORT).show();
-        } else if (error instanceof ParseError || error.getCause() instanceof IllegalStateException
-                || error.getCause() instanceof JSONException
-                || error.getCause() instanceof XmlPullParserException) {
-            Toast.makeText(context, "Parse Error (because of invalid json or xml).",
-                    Toast.LENGTH_SHORT).show();
-        } else if (error.getCause() instanceof OutOfMemoryError) {
-            Toast.makeText(context, "Out Of Memory Error.", Toast.LENGTH_SHORT).show();
-        } else if (error instanceof AuthFailureError) {
-            Toast.makeText(context, "server couldn't find the authenticated request.",
-                    Toast.LENGTH_SHORT).show();
-        } else if (error instanceof ServerError || error.getCause() instanceof ServerError) {
-            Toast.makeText(context, "Server is not responding.", Toast.LENGTH_SHORT).show();
-        } else if (error instanceof TimeoutError || error.getCause() instanceof SocketTimeoutException
-                || error.getCause() instanceof ConnectTimeoutException
-                || error.getCause() instanceof SocketException
-                || (error.getCause().getMessage() != null
-                && error.getCause().getMessage().contains("Connection timed out"))) {
-            Toast.makeText(context, "Connection timeout error",
-                    Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(context, "An unknown error occurred.",
-                    Toast.LENGTH_SHORT).show();
-        }
-    }
+
 
 }
