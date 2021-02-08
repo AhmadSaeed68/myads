@@ -15,7 +15,7 @@ Add it in your root build.gradle at the end of repositories:
 Step 2. Add the dependency
 
 	dependencies {
-	        implementation 'com.github.AhmadSaeed68:myads:1.0'
+	        implementation 'com.github.AhmadSaeed68:myads:2'
 		implementation 'com.android.volley:volley:1.1.1'
 	}
 
